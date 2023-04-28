@@ -1,0 +1,558 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset into a pandas DataFrame
+df = pd.read_csv('breast_cancer.csv')
+
+# Print the first few rows of the DataFrame
+df.head()
+
+# Print the last few rows of the DataFrame
+df.tail()
+# Print the shape of the DataFrame
+df.shape
+
+# Print information about the DataFrame, including column data types and number of non-null values
+df.info()
+
+# Count the number of NaN values in each column of the DataFrame
+df.isna().sum()
+
+# Get the value count for the 'diagnosis' column
+print(df['diagnosis'].value_counts())
+
+# Create a countplot of the 'diagnosis' column using seaborn
+sns.countplot(x='diagnosis', data=df)
+
+# Add labels and a title to the plot
+plt.xlabel('Diagnosis')
+plt.ylabel('Count')
+plt.title('Breast Cancer Diagnosis Counts')
+
+# Show the plot
+plt.show()
+
+df.columns
+
+# Drop the 'id' column from the DataFrame in place
+df.drop('id', axis=1, inplace=True)
+
+# Print the updated DataFrame to verify that the 'id' column has been dropped
+df.head()
+
+# Replace 'M' with 1 and 'B' with 0 in the 'diagnosis' column
+df['diagnosis'] = df['diagnosis'].replace({'M': 1, 'B': 0})
+
+# Print the updated DataFrame to verify that the 'diagnosis' column values have been replaced
+df.head()
+
+# Create a countplot of the 'diagnosis' column
+sns.countplot(data=df, x='diagnosis')
+
+# Show the plot
+plt.show()
+
+# Get the value counts of the 'diagnosis' column
+print(df['diagnosis'].value_counts())
+
+df.describe()
+
+# Create a pairplot of the dataset with the 'diagnosis' column used to color-code the data points
+sns.pairplot(df, hue='diagnosis')
+
+# Compute the correlation matrix
+corr_matrix = df.corr()
+
+# Create a heatmap of the correlation matrix
+plt.figure(figsize=(20, 20))
+sns.heatmap(corr_matrix, cmap='mako', annot=True)
+
+# Show the plot
+plt.show()
+
+
+from sklearn.model_selection import train_test_split
+
+# Drop the 'id' and 'diagnosis' columns from the DataFrame and assign the result to 'X'
+X = df.drop(['diagnosis'], axis=1)
+
+# Select the 'diagnosis' column as the target 'y'
+y = df['diagnosis']
+
+
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=101)
+
+from sklearn.preprocessing import StandardScaler
+# Initialize a StandardScaler object
+scaler = StandardScaler()
+
+# Fit the scaler to the training data and transform both the training and testing data
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+
+from sklearn.linear_model import LogisticRegression
+
+# Create an instance of the logistic regression model
+logmodel = LogisticRegression()
+
+# Fit the model to the training data
+logmodel.fit(X_train_scaled, y_train)
+
+# Make predictions on the testing data
+pred = logmodel.predict(X_test_scaled)
+
+
+
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix, plot_confusion_matrix
+
+#print("Confusion matrix") without Normalization
+print("Confusion matrix")
+plot_confusion_matrix(logmodel,X_test_scaled,y_test,cmap="Blues")
+
+#print("Confusion matrix") with Normalization
+print("Confusion matrix")
+plot_confusion_matrix(logmodel,X_test_scaled,y_test,normalize='true',cmap="Blues")
+
+
+
+# Generate confusion matrix
+cm = confusion_matrix(y_test, pred)
+print('Confusion Matrix:\n', cm)
+
+
+# Generate classification report
+print(classification_report(y_test, pred))
+
+# Calculate accuracy score
+acc_score = accuracy_score(y_test, pred)
+print('Accuracy Score:', acc_score)
+
+
+# Plot confusion matrix
+plot_confusion_matrix(logmodel, X_test_scaled, y_test)
+
+from sklearn.neighbors import KNeighborsClassifier
+
+# Create a KNN classifier object
+knn = KNeighborsClassifier(n_neighbors=5)
+
+# Fit the KNN classifier on the training data
+knn.fit(X_train_scaled, y_train)
+
+
+# Make predictions on the testing data
+pred = knn.predict(X_test_scaled)
+
+
+#print("Confusion matrix") without Normalization
+print("Confusion matrix")
+plot_confusion_matrix(knn,X_test_scaled,y_test,cmap="Blues")
+
+#print("Confusion matrix") with Normalization
+print("Confusion matrix")
+plot_confusion_matrix(knn,X_test_scaled,y_test,normalize='true',cmap="Blues")
+
+
+# Generate classification report
+print(classification_report(y_test, pred))
+
+# Calculate accuracy score
+acc_score = accuracy_score(y_test, pred)
+print('Accuracy Score:', acc_score)
+
+
+
+# Generate confusion matrix
+cm = confusion_matrix(y_test, pred)
+print('Confusion Matrix:\n', cm)
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+# Create a RFC classifier object
+rfc = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# Fit the RFC classifier on the training data
+rfc.fit(X_train_scaled, y_train)
+
+
+# Make predictions on the testing data
+pred = rfc.predict(X_test_scaled)
+# Generate the confusion matrix without normalization
+cm = confusion_matrix(y_test, pred)
+print('Confusion matrix without normalization:')
+print(cm)
+
+# Generate the confusion matrix with normalization
+cm_norm = confusion_matrix(y_test, pred, normalize='true')
+print('Confusion matrix with normalization:')
+print(cm_norm)
+
+# Plot the confusion matrices
+plt.figure(figsize=(10, 4))
+plt.subplot(121)
+sns.heatmap(cm, annot=True, cmap='Blues')
+plt.title('Confusion Matrix without Normalization')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+
+plt.subplot(122)
+sns.heatmap(cm_norm, annot=True, cmap='Blues')
+plt.title('Confusion Matrix with Normalization')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+
+plt.tight_layout()
+plt.show
+
+
+from sklearn.tree import DecisionTreeClassifier
+
+# Create a DTC classifier object
+dtc = DecisionTreeClassifier(random_state=42)
+
+# Fit the DTC classifier on the training data
+dtc.fit(X_train_scaled, y_train)
+
+# Make predictions on the testing data
+pred = dtc.predict(X_test_scaled)
+
+# Generate the confusion matrix without normalization
+cm = confusion_matrix(y_test, pred)
+print('Confusion matrix without normalization:')
+print(cm)
+
+# Generate the confusion matrix with normalization
+cm_norm = confusion_matrix(y_test, pred, normalize='true')
+print('Confusion matrix with normalization:')
+print(cm_norm)
+
+# Plot the confusion matrices
+plt.figure(figsize=(10, 4))
+plt.subplot(121)
+sns.heatmap(cm, annot=True, cmap='Blues')
+plt.title('Confusion Matrix without Normalization')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+
+plt.subplot(122)
+sns.heatmap(cm_norm, annot=True, cmap='Blues')
+plt.title('Confusion Matrix with Normalization')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+
+plt.tight_layout()
+plt.show()
+
+# Compute the accuracy score
+accuracy = accuracy_score(y_test, pred)
+
+print('Accuracy:', accuracy)
+
+
+from sklearn.naive_bayes import GaussianNB
+
+# Create a GNB classifier object
+gnb = GaussianNB()
+
+# Fit the GNB classifier on the training data
+gnb.fit(X_train_scaled, y_train)
+
+# Make predictions on the testing data
+pred = gnb.predict(X_test_scaled)
+
+# Generate the confusion matrix without normalization
+cm = confusion_matrix(y_test, pred)
+print('Confusion matrix without normalization:')
+print(cm)
+
+# Generate the confusion matrix with normalization
+cm_norm = confusion_matrix(y_test, pred, normalize='true')
+print('Confusion matrix with normalization:')
+print(cm_norm)
+
+# Plot the confusion matrices
+plt.figure(figsize=(10, 4))
+plt.subplot(121)
+sns.heatmap(cm, annot=True, cmap='Blues')
+plt.title('Confusion Matrix without Normalization')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+
+plt.subplot(122)
+sns.heatmap(cm_norm, annot=True, cmap='Blues')
+plt.title('Confusion Matrix with Normalization')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+
+plt.tight_layout()
+plt.show()
+
+# Compute the accuracy score
+accuracy = accuracy_score(y_test, pred)
+
+print('Accuracy:', accuracy)
+
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import make_scorer, accuracy_score
+from sklearn.naive_bayes import GaussianNB
+from sklearn.datasets import load_iris
+
+# Load the iris dataset
+iris = load_iris()
+
+# Define the classifier
+classifier = GaussianNB()
+
+# Define the hyperparameters to tune
+param_grid = {'var_smoothing': [1e-9, 1e-8, 1e-7, 1e-6, 1e-5]}
+
+# Define the scoring metric
+scoring = make_scorer(accuracy_score)
+
+# Define the Grid Search Cross Validation
+grid_search = GridSearchCV(classifier, param_grid, scoring=scoring, cv=5)
+
+# Fit the data to the grid search
+grid_search.fit(iris.data, iris.target)
+
+# Print the best hyperparameters and score
+print("Best parameters: ", grid_search.best_params_)
+print("Best accuracy: ", grid_search.best_score_)
+
+
+import pandas as pd
+import os
+
+# Set the path to the directory containing the CSV files
+data_dir = "csv"
+
+# Create an empty list to store all the CSV files
+csv_files = []
+
+# Loop through all the files in the directory and select only CSV files
+for file in os.listdir(data_dir):
+    if file.endswith(".csv"):
+        csv_files.append(os.path.join(data_dir, file))
+
+# Load each CSV file into a Pandas DataFrame and print its information
+for file in csv_files:
+    df = pd.read_csv(file)
+    print("Data frame shape: ", df.shape)
+    print("Columns: ", df.columns)
+    print("Head: ", df.head())
+    print("Description: ", df.describe())
+
+
+
+import pandas as pd
+import os
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+# Set the path to the directory containing the CSV files
+data_dir = "csv"
+
+# Create an empty list to store all the CSV files
+csv_files = []
+
+# Loop through all the files in the directory and select only CSV files
+for file in os.listdir(data_dir):
+    if file.endswith(".csv"):
+        csv_files.append(os.path.join(data_dir, file))
+
+# Preprocess each CSV file
+for file in csv_files:
+    df = pd.read_csv(file)
+    
+    # Drop duplicates
+    df.drop_duplicates(inplace=True)
+    
+    # Handle missing values by filling with the mean value of the column
+    df.fillna(df.mean(), inplace=True)
+    
+    # Encode categorical variables using label encoding
+    le = LabelEncoder()
+    for col in df.columns:
+        if df[col].dtype == 'object':
+            df[col] = le.fit_transform(df[col])
+    
+    # Scale numerical variables using standard scaler
+    scaler = StandardScaler()
+    for col in df.columns:
+        if df[col].dtype == 'float64':
+            df[col] = scaler.fit_transform(df[[col]])
+    
+    # Save the preprocessed data to a new CSV file
+    preprocessed_file = os.path.splitext(file)[0] + "_preprocessed.csv"
+    df.to_csv(preprocessed_file, index=False)
+
+
+import tensorflow as tf
+
+# Load the dataset using TensorFlow's data API
+data_dir = 'jpeg'
+batch_size = 32
+img_size = (224, 224)
+
+
+train_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    data_dir,
+    validation_split=0.2,
+    subset='training',
+    seed=123,
+    image_size=img_size,
+    batch_size=batch_size
+)
+
+val_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    data_dir,
+    validation_split=0.2,
+    subset='validation',
+    seed=123,
+    image_size=img_size,
+    batch_size=batch_size
+)
+
+
+# Preprocess the data
+num_classes = len(train_ds.class_names)
+
+train_ds = train_ds.map(lambda x, y: (tf.image.resize(x, img_size), y))
+val_ds = val_ds.map(lambda x, y: (tf.image.resize(x, img_size), y))
+
+train_ds = train_ds.map(lambda x, y: (tf.keras.applications.resnet.preprocess_input(x), y))
+val_ds = val_ds.map(lambda x, y: (tf.keras.applications.resnet.preprocess_input(x), y))
+
+
+# Define the model architecture
+base_model = tf.keras.applications.ResNet50(
+    weights='imagenet',
+    include_top=False,
+    input_shape=img_size + (3,)
+)
+
+x = base_model.output
+x = tf.keras.layers.GlobalAveragePooling2D()(x)
+x = tf.keras.layers.Dense(1024, activation='relu')(x)
+predictions = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
+
+model = tf.keras.Model(inputs=base_model.input, outputs=predictions)
+
+
+# Compile the model
+model.compile(
+    optimizer=tf.keras.optimizers.Adam(),
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    metrics=['accuracy']
+)
+
+
+
+# Train the model
+epochs = 10
+
+history = model.fit(
+    train_ds,
+    validation_data=val_ds,
+    epochs=epochs
+)
+
+
+# Evaluate the model
+test_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    data_dir,
+    validation_split=0.2,
+    subset='validation',
+    seed=123,
+    image_size=img_size,
+    batch_size=batch_size
+)
+
+
+test_ds = test_ds.map(lambda x, y: (tf.image.resize(x, img_size), y))
+test_ds = test_ds.map(lambda x, y: (tf.keras.applications.resnet.preprocess_input(x), y))
+
+loss, accuracy = model.evaluate(test_ds)
+
+print(f'Test accuracy: {accuracy}')
+
+# Load a random image from the test set and preprocess it
+img_path = '1-231.jpg'
+img = tf.keras.preprocessing.image.load_img(img_path, target_size=img_size)
+img = tf.keras.preprocessing.image.img_to_array(img)
+img = tf.keras.applications.resnet.preprocess_input(img)
+
+
+# Display the image
+plt.imshow(img)
+plt.show()
+
+
+from PIL import Image
+
+# Open the image
+img_path = '1-231.jpg'
+img = Image.open(img_path)
+
+# Convert the image to grayscale
+gray_img = img.convert('L')
+
+# Display the grayscale image
+gray_img.show()
+
+
+# Display the image
+plt.imshow(img)
+plt.show()
+
+
+# Make a prediction on the image using the trained model
+pred = model.predict(np.expand_dims(img, axis=0))
+
+# Print the prediction
+if pred[0][0] > 0.5:
+    print("The image is predicted to have cancer.")
+else:
+    print("The image is predicted to be healthy.") 
+
+test_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    data_dir,
+    validation_split=0.2,
+    subset='validation', # Set subset to validation/testing
+    seed=123,
+    image_size=img_size,
+    batch_size=batch_size
+)
+
+
+val_ds = tf.keras.preprocessing.image_dataset_from_directory(
+    data_dir,
+    validation_split=0.2,
+    subset='validation',
+    seed=123,
+    image_size=img_size,
+    batch_size=batch_size
+)
+
+
+# Make predictions on the test set
+for images, labels in test_ds:
+    # Preprocess the images
+    preprocessed_images = tf.keras.applications.resnet.preprocess_input(images)
+    
+    # Make predictions
+    predictions = model.predict(preprocessed_images)
+    
+    # Print the predictions
+    for i, prediction in enumerate(predictions):
+        if np.max(prediction) > 0.5:
+            print(f"Image {i} has cancer.")
+        else:
+            print(f"Image {i} is healthy.")
+
